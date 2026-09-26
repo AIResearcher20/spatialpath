@@ -1,33 +1,24 @@
-import numpy as np
-
-from spatialpath.normalize import normalize, scale, select_hvg, subset_hvg
+import scanpy as sc
 
 
-def test_normalize_shape(adata):
-    out = normalize(adata)
-    assert out.shape == adata.shape
-    assert out.raw is not None
+def normalize(adata, target_sum=1e4):
+    sc.pp.normalize_total(adata, target_sum=target_sum)
+    sc.pp.log1p(adata)
+    adata.raw = adata
+    return adata
 
 
-def test_select_hvg_marks(adata):
-    out = normalize(adata)
-    out = select_hvg(out, n_top_genes=30)
-    assert "highly_variable" in out.var
-    assert out.var["highly_variable"].sum() > 0
+def select_hvg(adata, n_top_genes=2000, flavor="seurat"):
+    sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes, flavor=flavor)
+    return adata
 
 
-def test_subset_hvg(adata):
-    out = normalize(adata)
-    out = select_hvg(out, n_top_genes=20)
-    sub = subset_hvg(out)
-    assert sub.n_vars <= out.n_vars
-    assert sub.n_vars > 0
+def subset_hvg(adata):
+    if "highly_variable" not in adata.var:
+        raise KeyError("highly_variable column not found")
+    return adata[:, adata.var["highly_variable"]].copy()
 
 
-def test_scale_bounds(adata):
-    out = normalize(adata)
-    out = select_hvg(out, n_top_genes=50)
-    sub = subset_hvg(out)
-    sub = scale(sub, max_value=10)
-    values = np.asarray(sub.X)
-    assert values.max() <= 10
+def scale(adata, max_value=10):
+    sc.pp.scale(adata, max_value=max_value)
+    return adata
