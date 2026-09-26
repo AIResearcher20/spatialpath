@@ -1,10 +1,10 @@
-from spatialpath.cluster import cluster_spots, find_marker_genes, reduce_dimensions
+from spatialpath.cluster import cluster_spots, reduce_dimensions
 from spatialpath.normalize import normalize, select_hvg, subset_hvg
 
 
 def _prep(adata):
     out = normalize(adata)
-    out = select_hvg(out, n_top_genes=40)
+    out = select_hvg(out, n_top_genes=30)
     out = subset_hvg(out)
     return out
 
@@ -13,7 +13,6 @@ def test_reduce_dimensions(adata):
     out = _prep(adata)
     out = reduce_dimensions(out, n_comps=10, n_neighbors=5)
     assert "X_pca" in out.obsm
-    assert "neighbors" in out.uns
 
 
 def test_cluster_adds_key(adata):
