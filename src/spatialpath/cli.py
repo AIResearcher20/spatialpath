@@ -1,6 +1,6 @@
+import argparse
 from pathlib import Path
 
-import typer
 import yaml
 
 from .cluster import cluster_spots, find_marker_genes, reduce_dimensions
@@ -16,19 +16,16 @@ def _load_config(path):
         return yaml.safe_load(handle)
 
 
-def run(
-    data_dir: Path = typer.Argument(..., exists=True, file_okay=False),
-    config: Path = typer.Option(Path("configs/default.yaml"), exists=True),
-    output_dir: Path = typer.Option(Path("results")),
-):
+def run(data_dir, config, output_dir):
     cfg = _load_config(config)
+    output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     fig_dir = output_dir / "figures"
 
-    typer.echo(f"loading data from {data_dir}")
+    print(f"loading data from {data_dir}")
     adata = load_visium(data_dir)
 
-    typer.echo("running qc")
+    print("running qc")
     adata = compute_qc_metrics(adata, mito_prefix=cfg["qc"]["mito_prefix"])
     adata = filter_spots(
         adata,
@@ -37,14 +34,14 @@ def run(
         max_mito=cfg["qc"]["max_mito"],
     )
     stats = qc_summary(adata)
-    typer.echo(f"spots={stats['n_spots']} genes={stats['n_genes']}")
+    print(f"spots={stats['n_spots']} genes={stats['n_genes']}")
 
-    typer.echo("normalizing")
+    print("normalizing")
     adata = normalize(adata, target_sum=cfg["normalize"]["target_sum"])
     adata = select_hvg(adata, n_top_genes=cfg["normalize"]["n_top_genes"])
     adata_hvg = subset_hvg(adata)
 
-    typer.echo("clustering")
+    print("clustering")
     adata_hvg = reduce_dimensions(
         adata_hvg,
         n_comps=cfg["cluster"]["n_comps"],
@@ -60,7 +57,7 @@ def run(
     adata.obs["cluster"] = adata_hvg.obs["cluster"].values
     adata.obsm["X_pca"] = adata_hvg.obsm["X_pca"]
 
-    typer.echo("saving outputs")
+    print("saving outputs")
     save_h5ad(adata, output_dir / "processed.h5ad")
     plot_qc(adata, fig_dir / "qc.png")
     plot_clusters(adata, output_path=fig_dir / "clusters.png")
@@ -68,11 +65,28 @@ def run(
     report = build_report(stats, adata)
     save_report(report, output_dir / "report.json")
 
-    typer.echo(f"done: {output_dir}")
+    print(f"done: {output_dir}")
 
 
-app = typer.Typer()
-app.command()(run)
+def main():
+    parser = argparse.ArgumentParser(description="SpatialPath pipeline")
+    parser.add_argument("data_dir", type=str, help="Visium data directory")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="configs/default.yaml",
+        help="YAML configuration file",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="results",
+        help="Output directory",
+    )
+    args = parser.parse_args()
+
+    run(args.data_dir, args.config, args.output_dir)
+
 
 if __name__ == "__main__":
-    app()
+    main()
