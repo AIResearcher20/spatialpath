@@ -17,13 +17,29 @@ def _load_config(path):
 
 
 def run(data_dir, config, output_dir):
+    # اطمینان از اینکه مسیر داده ورودی وجود دارد و یک پوشه است
+    data_path = Path(data_dir)
+    if not data_path.is_dir():
+        raise NotADirectoryError(f"Data directory not found: {data_path}")
+    
+    # بررسی وجود فایل اصلی count در پوشه داده
+    counts_file = data_path / "filtered_feature_bc_matrix.h5"
+    if not counts_file.exists():
+        # اگر فایل در پوشه داده نبود، شاید در پوشه spatial باشد
+        alt_path = data_path / "spatial" / "filtered_feature_bc_matrix.h5"
+        if alt_path.exists():
+            counts_file = alt_path
+        else:
+            raise FileNotFoundError(f"Missing count file in {data_path}")
+
     cfg = _load_config(config)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     fig_dir = output_dir / "figures"
 
-    print(f"loading data from {data_dir}")
-    adata = load_visium(data_dir)
+    print(f"loading data from {data_path}")
+    # مسیر را به تابع load_visium می‌دهیم
+    adata = load_visium(data_path)
 
     print("running qc")
     adata = compute_qc_metrics(adata, mito_prefix=cfg["qc"]["mito_prefix"])
