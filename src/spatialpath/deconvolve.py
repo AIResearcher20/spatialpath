@@ -33,7 +33,8 @@ def deconvolve(adata, reference, cell_type_key="cell_type", alpha=1.0):
 
     model = Ridge(alpha=alpha, positive=True, fit_intercept=False)
     model.fit(S, X_spot.T)
-    proportions = model.coef_.T
+
+    proportions = np.abs(model.coef_)
     proportions = np.clip(proportions, 0, None)
 
     row_sums = proportions.sum(axis=1, keepdims=True)
