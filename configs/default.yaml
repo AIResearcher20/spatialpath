@@ -1,0 +1,20 @@
+project:
+  name: SpatialPath
+  version: 0.1.0
+  random_seed: 42
+
+qc:
+  mito_prefix: MT-
+  min_genes: 200
+  min_counts: 500
+  max_mito: 20.0
+
+normalize:
+  target_sum: 10000
+  n_top_genes: 2000
+
+cluster:
+  resolution: 1.0
+  method: leiden
+  n_comps: 50
+  n_neighbors: 15
