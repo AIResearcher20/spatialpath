@@ -35,3 +35,23 @@ def plot_gene(adata, gene, output_path=None):
         raise KeyError(f"gene not found: {gene}")
     sc.pl.spatial(adata, color=gene, show=False)
     _save(output_path)
+
+
+def plot_marker_dotplot(adata, markers, cluster_key="cluster", output_path=None):
+    sc.pl.dotplot(
+        adata,
+        markers,
+        groupby=cluster_key,
+        show=False,
+    )
+    _save(output_path)
+
+
+def plot_marker_heatmap(adata, markers, cluster_key="cluster", output_path=None):
+    sc.pl.heatmap(
+        adata,
+        markers,
+        groupby=cluster_key,
+        show=False,
+    )
+    _save(output_path)
