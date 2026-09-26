@@ -36,7 +36,7 @@ jobs:
 
       - name: run pipeline
         run: |
-          python -m spatialpath.cli run data/visium_demo/Visium_Human_Breast_Cancer --output-dir results
+          spatialpath run data/visium_demo/Visium_Human_Breast_Cancer --output-dir results
 
       - name: upload results
         uses: actions/upload-artifact@v4
