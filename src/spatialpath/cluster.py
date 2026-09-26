@@ -1,3 +1,4 @@
+import pandas as pd
 import scanpy as sc
 
 
@@ -26,3 +27,26 @@ def find_marker_genes(adata, groupby="cluster", n_genes=25, method="wilcoxon"):
         method=method,
     )
     return adata
+
+
+def top_marker_genes(adata, n=5, groupby="cluster"):
+    result = adata.uns["rank_genes_groups"]
+    groups = result["names"].dtype.names
+    markers = {}
+    for g in groups:
+        names = result["names"][g][:n].tolist()
+        scores = result["scores"][g][:n].tolist()
+        markers[str(g)] = list(zip(names, scores))
+    return markers
+
+
+def marker_table(adata, n=10, groupby="cluster"):
+    result = adata.uns["rank_genes_groups"]
+    groups = result["names"].dtype.names
+    rows = []
+    for g in groups:
+        names = result["names"][g][:n]
+        scores = result["scores"][g][:n]
+        for name, score in zip(names, scores):
+            rows.append({"cluster": str(g), "gene": name, "score": float(score)})
+    return pd.DataFrame(rows)
