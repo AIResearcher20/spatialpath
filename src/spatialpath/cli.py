@@ -17,15 +17,12 @@ def _load_config(path):
 
 
 def run(data_dir, config, output_dir):
-    # اطمینان از اینکه مسیر داده ورودی وجود دارد و یک پوشه است
     data_path = Path(data_dir)
     if not data_path.is_dir():
         raise NotADirectoryError(f"Data directory not found: {data_path}")
-    
-    # بررسی وجود فایل اصلی count در پوشه داده
+
     counts_file = data_path / "filtered_feature_bc_matrix.h5"
     if not counts_file.exists():
-        # اگر فایل در پوشه داده نبود، شاید در پوشه spatial باشد
         alt_path = data_path / "spatial" / "filtered_feature_bc_matrix.h5"
         if alt_path.exists():
             counts_file = alt_path
@@ -38,7 +35,6 @@ def run(data_dir, config, output_dir):
     fig_dir = output_dir / "figures"
 
     print(f"loading data from {data_path}")
-    # مسیر را به تابع load_visium می‌دهیم
     adata = load_visium(data_path)
 
     print("running qc")
@@ -86,19 +82,9 @@ def run(data_dir, config, output_dir):
 
 def main():
     parser = argparse.ArgumentParser(description="SpatialPath pipeline")
-    parser.add_argument("data_dir", type=str, help="Visium data directory")
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="configs/default.yaml",
-        help="YAML configuration file",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="results",
-        help="Output directory",
-    )
+    parser.add_argument("data_dir", type=str)
+    parser.add_argument("--config", type=str, default="configs/default.yaml")
+    parser.add_argument("--output-dir", type=str, default="results")
     args = parser.parse_args()
 
     run(args.data_dir, args.config, args.output_dir)
