@@ -10,15 +10,12 @@ from .plot import plot_clusters, plot_qc
 from .qc import compute_qc_metrics, filter_spots, qc_summary
 from .report import build_report, save_report
 
-app = typer.Typer(add_completion=False, help="SpatialPath pipeline")
-
 
 def _load_config(path):
     with open(path, encoding="utf-8") as handle:
         return yaml.safe_load(handle)
 
 
-@app.command("run")
 def run(
     data_dir: Path = typer.Argument(..., exists=True, file_okay=False),
     config: Path = typer.Option(Path("configs/default.yaml"), exists=True),
@@ -73,6 +70,9 @@ def run(
 
     typer.echo(f"done: {output_dir}")
 
+
+app = typer.Typer()
+app.command()(run)
 
 if __name__ == "__main__":
     app()
