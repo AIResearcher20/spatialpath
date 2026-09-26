@@ -18,7 +18,7 @@ def _load_config(path):
         return yaml.safe_load(handle)
 
 
-@app.command()
+@app.command("run")
 def run(
     data_dir: Path = typer.Argument(..., exists=True, file_okay=False),
     config: Path = typer.Option(Path("configs/default.yaml"), exists=True),
