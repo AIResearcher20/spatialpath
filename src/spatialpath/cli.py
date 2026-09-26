@@ -21,14 +21,6 @@ def run(data_dir, config, output_dir):
     if not data_path.is_dir():
         raise NotADirectoryError(f"Data directory not found: {data_path}")
 
-    counts_file = data_path / "filtered_feature_bc_matrix.h5"
-    if not counts_file.exists():
-        alt_path = data_path / "spatial" / "filtered_feature_bc_matrix.h5"
-        if alt_path.exists():
-            counts_file = alt_path
-        else:
-            raise FileNotFoundError(f"Missing count file in {data_path}")
-
     cfg = _load_config(config)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
