@@ -28,11 +28,13 @@ jobs:
 
       - name: download Visium data
         run: |
-          mkdir -p data/visium_demo
-          cd data/visium_demo
+          mkdir -p data/visium_demo/Visium_Human_Breast_Cancer
+          cd data/visium_demo/Visium_Human_Breast_Cancer
           wget -q https://cf.10xgenomics.com/samples/spatial-exp/1.3.0/Visium_Human_Breast_Cancer/Visium_Human_Breast_Cancer_filtered_feature_bc_matrix.h5
           wget -q https://cf.10xgenomics.com/samples/spatial-exp/1.3.0/Visium_Human_Breast_Cancer/Visium_Human_Breast_Cancer_spatial.tar.gz
           tar -xzf Visium_Human_Breast_Cancer_spatial.tar.gz
+          ls -la
+          ls -la spatial/
 
       - name: run pipeline
         run: |
